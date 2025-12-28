@@ -1,0 +1,40 @@
+name: Deploy to GitHub Pages
+
+# مهم: نعطي صلاحيات كتابة للمحتوى وصفحة الـ Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # نحتاج احتفاظ بالـ credentials عشان يسمح بالدفع للـ gh-pages
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Prepare HTML files
+        run: |
+          mkdir -p public
+          cp -v *.html public/ || true
+          cp -v morpho.html public/ || true
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          allow_empty_commit: true

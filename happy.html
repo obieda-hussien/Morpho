@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عيد ميلاد سعيد</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            overflow-x: hidden;
+            background: radial-gradient(circle at center, #2b1055, #7597de);
+            color: white;
+            min-height: 100vh;
+            touch-action: manipulation;
+        }
+
+        /* Cake Styles */
+        .cake-container {
+            position: relative;
+            width: 250px;
+            height: 200px;
+            margin: 0 auto;
+            margin-top: 50px;
+            perspective: 1000px;
+            transition: transform 0.5s ease;
+        }
+
+        .plate {
+            width: 270px;
+            height: 110px;
+            background: #f0f0f0;
+            position: absolute;
+            bottom: -10px;
+            left: -10px;
+            border-radius: 50%;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3), inset 0 5px 10px rgba(255,255,255,0.5);
+            transform: rotateX(60deg);
+        }
+
+        .layer {
+            position: absolute;
+            width: 250px;
+            border-radius: 50%;
+            background: #ff9cb3; /* Pink Cake */
+            box-shadow: 0 4px 0 #e06c87, inset 0 5px 15px rgba(255,255,255,0.3);
+        }
+
+        .layer-bottom {
+            height: 80px;
+            bottom: 0;
+            background: #7c4d32; /* Chocolate base */
+            box-shadow: 0 4px 0 #5a3622;
+        }
+
+        .layer-middle {
+            height: 80px;
+            bottom: 30px;
+            background: #ff9cb3;
+            box-shadow: 0 4px 0 #e06c87;
+        }
+
+        .layer-top {
+            height: 80px;
+            bottom: 60px;
+            background: #ffe3e8; /* Icing */
+            box-shadow: 0 4px 0 #ffcad4, inset 0 10px 20px rgba(255,255,255,0.5);
+        }
+
+        .icing-drip {
+            position: absolute;
+            top: 70px;
+            width: 250px;
+            height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20" preserveAspectRatio="none"><path d="M0,0 Q10,20 20,0 T40,0 T60,0 T80,0 T100,0 V5 H0 Z" fill="%23ffe3e8"/></svg>');
+            background-size: 50px 100%;
+            z-index: 10;
+        }
+
+        /* Candle Styles */
+        .candle {
+            position: absolute;
+            width: 12px;
+            height: 50px;
+            background: linear-gradient(to bottom, #fff, #ddd);
+            bottom: 140px;
+            border-radius: 4px;
+            z-index: 20;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        
+        .candle:hover { transform: scale(1.1); }
+        .candle.out { transform: scale(0.9); filter: grayscale(0.8); }
+
+        .flame {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 20px;
+            background: radial-gradient(ellipse at bottom, #ffeb3b 0%, #ff9800 100%);
+            border-radius: 50% 50% 20% 20%;
+            animation: flicker 1s infinite alternate;
+            box-shadow: 0 0 20px #ffeb3b, 0 0 40px #ff9800;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .candle.out .flame {
+            opacity: 0;
+            animation: none;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scale(1); opacity: 0.9; }
+            100% { transform: translateX(-50%) scale(1.1) rotate(2deg); opacity: 1; }
+        }
+
+        /* Floating Elements */
+        .floating-heart {
+            position: absolute;
+            color: #ff4081;
+            font-size: 2rem;
+            animation: floatUp 4s linear forwards;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Premium Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+        
+        .visible-section {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2b1055; }
+        ::-webkit-scrollbar-thumb { background: #ff4081; border-radius: 4px; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center relative overflow-hidden">
+
+    <!-- Screen 1: Intro -->
+    <div id="intro-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black transition-opacity duration-1000">
+        <h1 class="text-4xl md:text-6xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500 animate-pulse">
+            جاهزة للمفاجأة؟
+        </h1>
+        <button onclick="startParty()" class="px-8 py-4 bg-white text-purple-900 rounded-full font-bold text-xl hover:scale-105 transition shadow-[0_0_30px_rgba(255,255,255,0.6)]">
+            دوسي هنا يا 🌟
+        </button>
+    </div>
+
+    <!-- Screen 2: The Party -->
+    <div id="party-screen" class="hidden-section flex-col items-center w-full max-w-4xl p-4 transition-all duration-1000">
+        
+        <!-- Header Text -->
+        <div class="text-center mb-10 z-10 relative">
+            <h2 class="text-3xl md:text-5xl font-black text-pink-200 drop-shadow-lg mb-2">
+                Make a Wish! ✨
+            </h2>
+            <p class="text-lg text-purple-200 animate-bounce">
+                دوسي على الشمع عشان تطفيه 🕯️
+            </p>
+        </div>
+
+        <!-- The 3D Cake -->
+        <div class="cake-container mb-12" id="cake">
+            <div class="plate"></div>
+            <div class="layer layer-bottom"></div>
+            <div class="layer layer-middle"></div>
+            <div class="layer layer-top">
+                <div class="icing-drip"></div>
+            </div>
+            
+            <!-- Candles (Positioned absolutely relative to cake) -->
+            <div class="candle" style="left: 60px; transform: translateZ(20px);" onclick="blowCandle(this)">
+                <div class="flame"></div>
+            </div>
+            <div class="candle" style="left: 120px; bottom: 130px; z-index: 21;" onclick="blowCandle(this)">
+                <div class="flame"></div>
+            </div>
+            <div class="candle" style="left: 180px;" onclick="blowCandle(this)">
+                <div class="flame"></div>
+            </div>
+        </div>
+
+        <!-- Message Card (Initially Hidden) -->
+        <div id="message-card" class="glass-card p-8 rounded-3xl max-w-lg w-full transform translate-y-20 opacity-0 transition-all duration-1000 z-30">
+            <h3 class="text-3xl font-bold text-pink-300 mb-4 font-['Pacifico']">Happy Birthday!</h3>
+            
+            <div class="space-y-4 text-right text-white/90 leading-relaxed">
+                <p class="text-xl">
+                    كل سنة وأنتي طيبة يا <span class="text-yellow-300 font-bold" contenteditable="true">أجدع واحدة</span>! 🎉
+                </p>
+                <p>
+                    أنتي عارفة غلاوتك عندي عاملة إزاي، حتى لو بنقعد نستعبط ونتخانق زي العيال الصغيرة، بس بجد أنتي أختي وصحبتي واليوم ده مهم جداً بالنسبالي.
+                </p>
+                <p>
+                    يا رب السنة دي تحققي كل اللي نفسك فيه وتبقي مبسوطة دايماً، وتفضلي "مجننة" كل اللي حواليكي بخفة دمك دي. 😉
+                </p>
+                <p class="text-sm text-gray-300 mt-4 border-t border-white/20 pt-4">
+                    ملاحظة: الموقع ده معمول مخصوص عشانك، عشان تعرفي إنك مش أي حد وكده يعني (متتعوديش على كده). 😂
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Interactive Layer for stickers -->
+    <div id="click-layer" class="fixed inset-0 pointer-events-none z-40"></div>
+
+    <script>
+        const introScreen = document.getElementById('intro-screen');
+        const partyScreen = document.getElementById('party-screen');
+        const messageCard = document.getElementById('message-card');
+        const clickLayer = document.getElementById('click-layer');
+        let candlesBlown = 0;
+        const totalCandles = 3;
+
+        // Initialize Audio context (optional/browser policy friendly)
+        const happyVibes = () => {
+            // Just visual vibes for now to keep it simpler
+        }
+
+        function startParty() {
+            introScreen.style.opacity = '0';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                partyScreen.classList.remove('hidden-section');
+                partyScreen.classList.add('visible-section');
+                
+                // Initial Confetti Pop
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ff9cb3', '#ffffff', '#ffd700']
+                });
+            }, 1000);
+            
+            // Enable background interactions
+            document.addEventListener('click', (e) => {
+                // Avoid spawning hearts when clicking buttons or candles
+                if(e.target.tagName !== 'BUTTON' && !e.target.classList.contains('candle') && !e.target.classList.contains('flame')) {
+                    spawnHeart(e.clientX, e.clientY);
+                }
+            });
+        }
+
+        function blowCandle(element) {
+            if (element.classList.contains('out')) return;
+
+            // Blow out animation
+            element.classList.add('out');
+            
+            // Puff effect
+            const rect = element.getBoundingClientRect();
+            spawnSmoke(rect.left + 10, rect.top);
+
+            candlesBlown++;
+
+            if (candlesBlown === totalCandles) {
+                celebrate();
+            }
+        }
+
+        function spawnSmoke(x, y) {
+            const smoke = document.createElement('div');
+            smoke.style.cssText = `
+                position: absolute;
+                left: ${x}px;
+                top: ${y}px;
+                font-size: 20px;
+                pointer-events: none;
+                animation: floatUp 1s forwards;
+                opacity: 0.7;
+            `;
+            smoke.innerText = '💨';
+            document.body.appendChild(smoke);
+            setTimeout(() => smoke.remove(), 1000);
+        }
+
+        function celebrate() {
+            // Delay slightly for dramatic effect
+            setTimeout(() => {
+                // Massive Confetti
+                const duration = 3000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 5,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#ff0000', '#ffa500', '#ffff00', '#008000', '#0000ff', '#4b0082', '#ee82ee']
+                    });
+                    confetti({
+                        particleCount: 5,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#ff0000', '#ffa500', '#ffff00', '#008000', '#0000ff', '#4b0082', '#ee82ee']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+
+                // Show Message Card
+                messageCard.style.opacity = '1';
+                messageCard.style.transform = 'translateY(0)';
+                
+                // Change background slightly
+                document.body.style.background = 'radial-gradient(circle at center, #5e1b46, #1a0b2e)';
+            }, 500);
+        }
+
+        function spawnHeart(x, y) {
+            const icons = ['❤️', '💖', '✨', '🎂', '🥳', '🌸'];
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerText = icons[Math.floor(Math.random() * icons.length)];
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            document.body.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
+

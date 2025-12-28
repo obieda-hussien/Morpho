@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عيد ميلاد مورفو 🦋</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0a192f; /* كحلي غامق */
+            --gold: #ffd700;    /* دهبي */
+            --blue: #00f3ff;    /* أزرق مورفو */
+            --text: #e6f1ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            overflow-x: hidden;
+            text-align: center;
+        }
+
+        /* --- شاشة التحميل --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #020c1b;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease;
+        }
+
+        .loader-text {
+            font-size: 1.5rem;
+            color: var(--blue);
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .progress-bar {
+            width: 80%;
+            height: 4px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: var(--blue);
+            transition: width 0.5s ease;
+        }
+
+        /* --- الهيرو سكشن --- */
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #112240 0%, #0a192f 100%);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, var(--blue), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #8892b0;
+            margin-bottom: 30px;
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            animation: bounce 2s infinite;
+            color: var(--gold);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- التايم لاين --- */
+        .timeline-section {
+            padding: 50px 20px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .timeline-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .timeline-line {
+            position: absolute;
+            right: 50%;
+            width: 2px;
+            height: 100%;
+            background: var(--blue);
+            transform: translateX(50%);
+        }
+
+        .station {
+            background: #112240;
+            border: 1px solid var(--blue);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            position: relative;
+            box-shadow: 0 10px 30px -10px rgba(2, 12, 27, 0.7);
+            z-index: 2;
+            transition: transform 0.3s;
+        }
+
+        .station:hover {
+            transform: translateY(-5px);
+        }
+
+        .station-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .station h3 {
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        /* --- لعبة الإفلاس --- */
+        .game-section {
+            background: #0e1e36;
+            padding: 50px 20px;
+            border-top: 2px solid var(--gold);
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .game-area {
+            background: #020c1b;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        #money-counter {
+            font-size: 2rem;
+            color: #2ecc71;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .btn-collect {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--gold);
+            transition: transform 0.1s;
+        }
+
+        .btn-collect:active {
+            transform: scale(0.95);
+        }
+
+        /* --- التورتة والاحتفال --- */
+        .cake-section {
+            padding: 80px 20px;
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            display: none; /* مخفية لحد ما اللعبة تخلص */
+        }
+
+        .cake-emoji {
+            font-size: 8rem;
+            cursor: pointer;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+            transition: transform 0.3s;
+        }
+
+        .cake-emoji:active {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .hint {
+            color: #8892b0;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* --- الرسالة الختامية --- */
+        .message-card {
+            background: linear-gradient(135deg, #112240, #1a2f50);
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            display: none; /* مخفية */
+        }
+
+        .whatsapp-btn {
+            display: inline-block;
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        /* --- Animations --- */
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
+        @keyframes float { 0% {transform: translateY(0px);} 50% {transform: translateY(-20px);} 100% {transform: translateY(0px);} }
+
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-text">جارِ تحميل ذكريات مورفو...</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <p style="margin-top: 10px; color: #8892b0; font-size: 0.8rem;">يتم الآن فحص البطاطس...</p>
+    </div>
+
+    <header>
+        <h1>عيد ميلاد<br>سعيد يا مورفو 🦋</h1>
+        <p class="subtitle">النسخة الفاخرة - شتاء 2026 ❄️</p>
+        <div class="scroll-down" onclick="scrollToTimeline()">
+            ⬇
+        </div>
+    </header>
+
+    <section class="timeline-section" id="timeline">
+        <h2 class="section-title">أرشيف الذكريات</h2>
+        
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            
+            <div class="station">
+                <span class="station-icon">☕👃</span>
+                <h3>المحطة الأولى: رقابة الجودة</h3>
+                <p>الوحيدة اللي بتعمل Scan للكوبايات والأطباق قبل الأكل.. حاسة الشم عندك عدت مراحل الخطر.</p>
+            </div>
+
+            <div class="station">
+                <span class="station-icon">💰🏦</span>
+                <h3>المحطة الثانية: أرك الشتاء والويزو</h3>
+                <p>من خطط سرقة البنك بالشرابات.. لغزوات الأكل الليلية. سنة جديدة، وعبث جديد.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="game-section">
+        <h2 class="section-title">مهمة إنقاذ الميزانية 💸</h2>
+        <p style="margin-bottom: 20px; color: #aaa;">اضغطي عشان تجمعي فلوس للتورتة لأننا مفلسين حالياً</p>
+        
+        <div class="game-area">
+            <div id="money-counter">0 جنية</div>
+            <button class="btn-collect" onclick="collectMoney()">لمّي التبرعات 🤏</button>
+        </div>
+    </section>
+
+    <section class="cake-section" id="cakeSection">
+        <h2 style="font-size: 2.5rem; margin-bottom: 20px; color: var(--gold);">Happy Birthday!</h2>
+        <div class="cake-emoji" onclick="blowCandle()">🎂</div>
+        <p class="hint">اضغطي ع التورتة عشان تطفي الشمع وتبدأي السنة</p>
+        
+        <div class="message-card" id="finalMessage">
+            <h3 style="color: var(--blue); margin-bottom: 15px;">إلى أجدع أخت وصاحبة..</h3>
+            <p style="line-height: 1.6; font-size: 1.1rem;">
+                كل سنة وأنتي طيبة يا إيمان (مورفو).<br>
+                السنة دي كانت مليانة ضحك وعبث، وإن شاء الله 2026 تكون سنة "توب التوب" وتعوضك عن أي تعب.<br>
+                بطلي تأخير على السكاشن، وخفي نوم شوية.. <br>
+                ويلا بينا نسيطر على العالم (أو نسرق البنك). 😉
+            </p>
+            <p style="margin-top: 15px; font-weight: bold; color: var(--gold);">
+                - Obieda ☕
+            </p>
+            <a href="https://wa.me/?text=الموقع%20جامد%20يا%20عبود%20😂💙" class="whatsapp-btn">ردي عليا واتساب</a>
+        </div>
+    </section>
+
+    <script>
+        // كود التحميل
+        window.onload = function() {
+            let progress = document.getElementById('progress');
+            let width = 0;
+            let interval = setInterval(function() {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    document.getElementById('loader').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('loader').style.display = 'none';
+                    }, 1000);
+                } else {
+                    width++;
+                    progress.style.width = width + '%';
+                }
+            }, 30); // سرعة التحميل
+        };
+
+        function scrollToTimeline() {
+            document.getElementById('timeline').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // كود اللعبة
+        let money = 0;
+        const targetMoney = 100; // المبلغ المطلوب
+
+        function collectMoney() {
+            money += 10;
+            document.getElementById('money-counter').innerText = money + " جنية";
+            
+            // تأثير بصري بسيط
+            let btn = document.querySelector('.btn-collect');
+            btn.style.transform = "scale(0.9)";
+            setTimeout(() => btn.style.transform = "scale(1)", 100);
+
+            if (money >= targetMoney) {
+                document.querySelector('.game-section').innerHTML = "<h2 style='color:#2ecc71'>تم تجميع ثروة بنجاح! 🎉</h2>";
+                setTimeout(() => {
+                    document.getElementById('cakeSection').style.display = 'flex';
+                    document.getElementById('cakeSection').scrollIntoView({ behavior: 'smooth' });
+                }, 1000);
+            }
+        }
+
+        // كود الاحتفال
+        function blowCandle() {
+            // تشغيل الكونفيتي
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInOut(min, max) {
+            return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+            var timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            var particleCount = 50 * (timeLeft / duration);
+            // احتفال بالأزرق والدهبي
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInOut(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#00f3ff', '#ffd700'] }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInOut(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#00f3ff', '#ffd700'] }));
+            }, 250);
+
+            // إظهار الرسالة
+            document.querySelector('.hint').style.display = 'none';
+            document.querySelector('.cake-emoji').innerHTML = '🦋'; // تتحول لفراشة
+            setTimeout(() => {
+                document.getElementById('finalMessage').style.display = 'block';
+                document.getElementById('finalMessage').scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
